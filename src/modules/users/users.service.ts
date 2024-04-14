@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,8 @@ import { Users } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
+
+  private readonly logger = new Logger('UsersService');
 
   constructor(
     @InjectRepository(Users)
@@ -24,24 +26,45 @@ export class UsersService {
       return user;
 
     } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException('Ayuda');
+      this.handleDBException(error);
     }
   }
 
+
   findAll() {
-    return `This action returns all users`;
+    return this.userRepository.find({});
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  
+  async findOne(id: string) {
+
+    const user = await this.userRepository.findOneBy({ id });
+
+    if ( !user ) throw new NotFoundException(`User with id #${id} not found`);
+
+    return user;
   }
+
 
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+
+  async remove(id: string) {
+
+    const user = await this.findOne(id);
+
+    await this.userRepository.remove( user );
+
+  }
+
+  
+  private handleDBException(error: any) {
+    if (error.code === 'ER_DUP_ENTRY')
+      throw new BadRequestException(error.sqlMessage)
+    
+    this.logger.error(error);
+    throw new InternalServerErrorException('Unexpected error, check server logs');
   }
 }

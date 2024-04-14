@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Project } from "src/modules/projects/entities/project.entity";
+import { Task } from "src/modules/tasks/entities/task.entity";
+import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Users {
@@ -19,4 +21,16 @@ export class Users {
 
     @Column('varchar')
     password: string;
+
+    @ManyToMany(
+        () => Project,
+        (project) => project.users
+    )
+    projects: Project[];
+
+    @OneToMany(
+        () => Task,
+        (task) => task.user
+    )
+    tasks: Task;
 }
