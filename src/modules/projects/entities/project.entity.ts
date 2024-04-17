@@ -1,4 +1,3 @@
-import { Length } from "class-validator";
 import { Task } from "src/modules/tasks/entities/task.entity";
 import { Users } from "src/modules/users/entities/user.entity";
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
@@ -20,8 +19,7 @@ export class Project {
     @Column('date')
     end_date: string;
 
-    @Column('char')
-    @Length(1, 10)
+    @Column('char', { length: 10 })
     status: string;
 
     @ManyToMany(
@@ -30,11 +28,12 @@ export class Project {
         { cascade: true }
     )
     @JoinTable()
-    users: Users[];
+    users?: Users[];
 
     @OneToMany(
         () => Task,
-        (task) => task.project
+        (task) => task.project,
+        { cascade: true }
     )
-    tasks: Task;
+    tasks?: Task;
 }

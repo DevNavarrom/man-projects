@@ -1,3 +1,4 @@
+import { Comment } from "src/modules/comments/entities/comment.entity";
 import { Project } from "src/modules/projects/entities/project.entity";
 import { Task } from "src/modules/tasks/entities/task.entity";
 import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
@@ -26,11 +27,17 @@ export class Users {
         () => Project,
         (project) => project.users
     )
-    projects: Project[];
+    projects?: Project[];
 
     @OneToMany(
         () => Task,
         (task) => task.user
     )
-    tasks: Task;
+    tasks?: Task;
+
+    @OneToMany(
+        () => Comment,
+        (comment) => comment.user
+    )
+    comments?: Comment[];
 }

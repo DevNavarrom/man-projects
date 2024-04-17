@@ -1,6 +1,7 @@
+import { Comment } from "src/modules/comments/entities/comment.entity";
 import { Project } from "src/modules/projects/entities/project.entity";
 import { Users } from "src/modules/users/entities/user.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Task {
@@ -17,8 +18,11 @@ export class Task {
     @Column('int')
     priority: number;
 
-    @Column('timestamp')
-    created_at: string;
+    @Column({
+        type: 'timestamp',
+        default: () => "CURRENT_TIMESTAMP"
+    })
+    created_at: Date;
 
     @Column('date')
     end_date: string;
@@ -34,4 +38,11 @@ export class Task {
         (user) => user.tasks
     )
     user: Users;
+
+    @OneToMany(
+        () => Comment,
+        (comment) => comment.task,
+        { cascade: true }
+    )
+    comments?: Comment[];
 }
